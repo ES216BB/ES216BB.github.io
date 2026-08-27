@@ -64,3 +64,60 @@
 
         // AUTOMATIC CONFIGURATION USING YOUR PROJECT ID
         const SUPABASE_URL = "
+
+        "; 
+        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY"; // <-- PASTE YOUR ANON KEY HERE
+
+        function triggerUpload() {
+            filePicker.click();
+        }
+
+        filePicker.addEventListener('change', function(event) {
+            selectedFile = event.target.files[0];
+            if (selectedFile) {
+                fileInfo.textContent = `Ready: ${selectedFile.name}`;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'inline-block';
+                    saveButton.style.display = 'inline-block';
+                }
+                reader.readAsDataURL(selectedFile);
+            }
+        });
+
+        async function saveToCloud() {
+            if (!selectedFile) return;
+            statusMessage.textContent = "Uploading file...";
+            statusMessage.style.color = "orange";
+
+            const fileExtension = selectedFile.name.split('.').pop();
+            const uniqueFileName = `${Date.now()}.${fileExtension}`;
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/storage/v1/object/uploads/${uniqueFileName}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Content-Type': selectedFile.type
+                    },
+                    body: selectedFile
+                });
+
+                if (response.ok) {
+                    statusMessage.textContent = "✅ Saved successfully to the cloud!";
+                    statusMessage.style.color = "green";
+                    saveButton.style.display = 'none';
+                } else {
+                    const errData = await response.json();
+                    throw new Error(errData.message || "Upload failed");
+                }
+            } catch (error) {
+                statusMessage.textContent = `❌ Error: ${error.message}`;
+                statusMessage.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>
