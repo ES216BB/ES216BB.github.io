@@ -3,184 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal Website - File Upload</title>
+    <title>My Website - Cloud Save</title>
     <style>
-        /* CSS Styling */
         :root {
             --bg-color: #f4f7f6;
             --text-color: #333;
             --accent-color: #4a90e2;
             --card-bg: #ffffff;
-            --border-color: #ccc;
         }
-
         [data-theme="dark"] {
             --bg-color: #1a1a1a;
             --text-color: #f4f7f6;
             --accent-color: #357abd;
             --card-bg: #2a2a2a;
-            --border-color: #444;
         }
-
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        header {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        main {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-
-        .profile-card {
-            background-color: var(--card-bg);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-        }
-
-        h1, h2 {
-            margin-top: 0;
-            color: var(--accent-color);
-        }
-
-        /* Upload Area Styling */
-        .upload-container {
-            border: 3px dashed var(--accent-color);
-            padding: 2rem;
-            text-align: center;
-            border-radius: 8px;
-            background-color: rgba(74, 144, 226, 0.05);
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .upload-container:hover {
-            background-color: rgba(74, 144, 226, 0.1);
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        #preview-container {
-            margin-top: 1.5rem;
-            text-align: center;
-        }
-
-        #image-preview {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 8px;
-            display: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        #file-info {
-            font-weight: bold;
-            margin-top: 0.5rem;
-        }
-
-        .theme-toggle {
-            background: none;
-            border: 2px solid var(--text-color);
-            color: var(--text-color);
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            cursor: pointer;
-        }
-
-        footer {
-            text-align: center;
-            padding: 2rem;
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
+        body { font-family: system-ui, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
+        header, main { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+        .profile-card { background-color: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 2rem; }
+        .upload-container { border: 3px dashed var(--accent-color); padding: 2rem; text-align: center; border-radius: 8px; background-color: rgba(74, 144, 226, 0.05); cursor: pointer; }
+        .file-input { display: none; }
+        #preview-container { margin-top: 1.5rem; text-align: center; }
+        #image-preview { max-width: 100%; max-height: 300px; border-radius: 8px; display: none; }
+        .btn { background-color: #2ecc71; color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 20px; cursor: pointer; font-weight: bold; margin-top: 1rem; display: none; }
+        #status-message { margin-top: 1rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <header>
-        <div><strong>MySpace</strong></div>
-        <button class="theme-toggle" id="themeButton">Toggle Mode</button>
+        <div><strong>MySpace Storage</strong></div>
     </header>
 
     <main>
         <section class="profile-card">
-            <h1>File Upload System 📁</h1>
-            <p>Select an image file to preview it live in your browser using client-side JavaScript.</p>
+            <h1>Upload & Save to Cloud ☁️</h1>
+            <p>Upload your file and click save to permanently store it in the database cloud folder.</p>
             
-            <!-- Upload Box Trigger -->
             <div class="upload-container" onclick="triggerUpload()">
-                <p>Drag & drop your file here or <strong>click to browse</strong></p>
+                <p>Click to browse and choose a file</p>
                 <input type="file" id="filePicker" class="file-input" accept="image/*">
             </div>
 
-            <!-- Preview Box -->
             <div id="preview-container">
                 <p id="file-info"></p>
-                <img id="image-preview" src="#" alt="Uploaded Image Preview">
+                <img id="image-preview" src="#" alt="Preview">
+                <br>
+                <button id="saveButton" class="btn" onclick="saveToCloud()">Save Permanently</button>
+                <p id="status-message"></p>
             </div>
         </section>
     </main>
 
-    <footer>
-        <p>&copy; 2026 Powered by GitHub Pages</p>
-    </footer>
-
     <script>
-        // 1. Dark/Light Mode Toggle
-        const themeButton = document.getElementById('themeButton');
-        themeButton.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            if (currentTheme === 'dark') {
-                document.documentElement.removeAttribute('data-theme');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-        });
-
-        // 2. File Upload Functionality
         const filePicker = document.getElementById('filePicker');
         const imagePreview = document.getElementById('image-preview');
         const fileInfo = document.getElementById('file-info');
+        const saveButton = document.getElementById('saveButton');
+        const statusMessage = document.getElementById('status-message');
+        let selectedFile = null;
 
-        function triggerUpload() {
-            filePicker.click();
-        }
-
-        filePicker.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            
-            if (file) {
-                // Display file information
-                fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-                
-                // Read and preview the image locally
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'inline-block';
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-    </script>
-</body>
-</html>
+        // AUTOMATIC CONFIGURATION USING YOUR PROJECT ID
+        const SUPABASE_URL = "
