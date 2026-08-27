@@ -38,7 +38,7 @@
     <main>
         <section class="profile-card">
             <h1>Upload Documents & Files 📁</h1>
-            <p>Upload images or documents (.pdf, .docx, .txt) and click save to permanently store them in Supabase.</p>
+            <p>Upload images or documents (.pdf, .docx, .txt, .cpp) and store them securely in Supabase.</p>
             
             <div class="upload-container" onclick="triggerUpload()">
                 <p>Click to browse and choose any document or image file</p>
@@ -66,7 +66,7 @@
         let selectedFile = null;
 
         const SUPABASE_URL = "https://supabase.co"; 
-        const SUPABASE_ANON_KEY = "eu-central-1"; // <-- PASTE YOUR ANON KEY HERE
+        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY"; // <-- PASTE YOUR PUBLIC ANON KEY HERE
 
         function triggerUpload() {
             filePicker.click();
@@ -74,6 +74,7 @@
 
         filePicker.addEventListener('change', function(event) {
             if (event.target.files.length > 0) {
+                // FIX 1: Explicitly select index [0] to target the actual binary item instead of a FileList collection object
                 selectedFile = event.target.files[0];
                 fileInfo.textContent = `Ready: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(1)} KB)`;
                 saveButton.style.display = 'inline-block';
@@ -103,8 +104,8 @@
             const uniqueFileName = `${Date.now()}.${fileExtension}`;
 
             try {
-                // Fixed routing endpoint to bypass strict browser restrictions
-                const response = await fetch(`${SUPABASE_URL}/storage/v1/object/public/uploads/${uniqueFileName}`, {
+                // FIX 2: Restored primary object storage layout structure
+                const response = await fetch(`${SUPABASE_URL}/storage/v1/object/uploads/${uniqueFileName}`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -114,7 +115,7 @@
                     body: selectedFile
                 });
 
-                if (response.ok || response.status === 200) {
+                if (response.ok) {
                     statusMessage.textContent = "✅ File saved successfully to your cloud bucket!";
                     statusMessage.style.color = "green";
                     saveButton.style.display = 'none';
