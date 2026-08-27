@@ -42,7 +42,6 @@
             
             <div class="upload-container" onclick="triggerUpload()">
                 <p>Click to browse and choose any document or image file</p>
-                <!-- Removed image restriction so you can upload documents -->
                 <input type="file" id="filePicker" class="file-input">
             </div>
 
@@ -66,22 +65,20 @@
         const statusMessage = document.getElementById('status-message');
         let selectedFile = null;
 
-        // AUTOMATIC CONFIGURATION USING YOUR PROJECT ID
         const SUPABASE_URL = "https://supabase.co"; 
-        const SUPABASE_ANON_KEY = "eu-central-1"; // <-- REMEMBER TO RE-PASTE YOUR ANON KEY HERE
+        const SUPABASE_ANON_KEY = "eu-central-1"; // <-- PASTE YOUR ANON KEY HERE
 
         function triggerUpload() {
             filePicker.click();
         }
 
         filePicker.addEventListener('change', function(event) {
-            selectedFile = event.target.files[0];
-            if (selectedFile) {
+            if (event.target.files.length > 0) {
+                selectedFile = event.target.files[0];
                 fileInfo.textContent = `Ready: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(1)} KB)`;
                 saveButton.style.display = 'inline-block';
-                statusMessage.textContent = ""; // Clear old message
+                statusMessage.textContent = ""; 
 
-                // Check if the file is an image to show preview, or a document
                 if (selectedFile.type.startsWith('image/')) {
                     docIcon.style.display = 'none';
                     const reader = new FileReader();
@@ -91,7 +88,6 @@
                     }
                     reader.readAsDataURL(selectedFile);
                 } else {
-                    // It's a document (PDF, Word, etc.) -> hide image box, show document icon
                     imagePreview.style.display = 'none';
                     docIcon.style.display = 'block';
                 }
@@ -107,7 +103,8 @@
             const uniqueFileName = `${Date.now()}.${fileExtension}`;
 
             try {
-                const response = await fetch(`${SUPABASE_URL}/storage/v1/object/uploads/${uniqueFileName}`, {
+                // Fixed routing endpoint to bypass strict browser restrictions
+                const response = await fetch(`${SUPABASE_URL}/storage/v1/object/public/uploads/${uniqueFileName}`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -117,13 +114,13 @@
                     body: selectedFile
                 });
 
-                if (response.ok) {
+                if (response.ok || response.status === 200) {
                     statusMessage.textContent = "✅ File saved successfully to your cloud bucket!";
                     statusMessage.style.color = "green";
                     saveButton.style.display = 'none';
                 } else {
                     const errData = await response.json();
-                    throw new Error(errData.message || "Upload failed");
+                    throw new Error(errData.message || `Upload failed (Status: ${response.status})`);
                 }
             } catch (error) {
                 statusMessage.textContent = `❌ Error: ${error.message}`;
