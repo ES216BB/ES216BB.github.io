@@ -3,61 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website - Document Cloud Save</title>
+    <title>My Website - Complete Cloud Storage Solution</title>
     <style>
+        /* CSS Design System and CSS Variables */
         :root {
             --bg-color: #f4f7f6;
             --text-color: #333;
             --accent-color: #4a90e2;
             --card-bg: #ffffff;
+            --border-color: #ccc;
         }
+
         [data-theme="dark"] {
             --bg-color: #1a1a1a;
             --text-color: #f4f7f6;
             --accent-color: #357abd;
             --card-bg: #2a2a2a;
+            --border-color: #444;
         }
-        body { font-family: system-ui, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
-        header, main { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
-        .profile-card { background-color: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 2rem; }
-        .upload-container { border: 3px dashed var(--accent-color); padding: 2rem; text-align: center; border-radius: 8px; background-color: rgba(74, 144, 226, 0.05); cursor: pointer; }
-        .file-input { display: none; }
-        #preview-container { margin-top: 1.5rem; text-align: center; }
-        #image-preview { max-width: 100%; max-height: 300px; border-radius: 8px; display: none; }
-        #doc-icon { font-size: 4rem; display: none; margin-bottom: 0.5rem; }
-        .btn { background-color: #2ecc71; color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 20px; cursor: pointer; font-weight: bold; margin-top: 1rem; display: none; }
-        #status-message { margin-top: 1rem; font-weight: bold; }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .profile-card {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        h1, h2 {
+            margin-top: 0;
+            color: var(--accent-color);
+        }
+
+        /* Option 1: File Upload Block UI */
+        .upload-container {
+            border: 3px dashed var(--accent-color);
+            padding: 2.5rem;
+            text-align: center;
+            border-radius: 8px;
+            background-color: rgba(74, 144, 226, 0.05);
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .upload-container:hover {
+            background-color: rgba(74, 144, 226, 0.1);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Option 2: Written Text Area UI */
+        .text-box-container {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 130px;
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: 2px solid var(--accent-color);
+            font-family: inherit;
+            box-sizing: border-box;
+            resize: vertical;
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 2rem 0;
+            font-weight: bold;
+            opacity: 0.5;
+            position: relative;
+        }
+
+        /* Global Status & Media Previews */
+        #preview-container {
+            margin-top: 1.5rem;
+            text-align: center;
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        #image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        #doc-icon {
+            font-size: 4.5rem;
+            display: none;
+            margin-bottom: 0.5rem;
+        }
+
+        #file-info {
+            font-weight: bold;
+            margin-top: 0.5rem;
+            word-break: break-all;
+        }
+
+        /* Buttons styles */
+        .btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-top: 1.5rem;
+            display: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: opacity 0.2s;
+        }
+
+        .action-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 0.6rem;
+            align-self: flex-end;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover, .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 2px solid var(--text-color);
+            color: var(--text-color);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #status-message {
+            margin-top: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem 1rem;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <div><strong>MySpace Storage</strong></div>
+        <div><strong>MySpace Dashboard</strong></div>
+        <button class="theme-toggle" id="themeButton">Toggle Mode</button>
     </header>
 
     <main>
         <section class="profile-card">
-            <h1>Upload Documents & Files 📁</h1>
-            <p>Upload images or documents (.pdf, .docx, .txt, .cpp) and store them securely in Supabase.</p>
+            <h1>Cloud Note & File Saver 📁</h1>
+            <p>Use this tool to save files or write custom text documents that upload permanently into your connected Supabase storage bucket.</p>
             
+            <!-- Option 1: Process external local storage files -->
+            <h2>Option 1: Upload a File or Document</h2>
             <div class="upload-container" onclick="triggerUpload()">
-                <p>Click to browse and choose any document or image file</p>
+                <p>Drag & drop your files here or <strong>click to browse folders</strong></p>
                 <input type="file" id="filePicker" class="file-input">
             </div>
 
+            <div class="divider">─ OR ─</div>
+
+            <!-- Option 2: Build a text snippet file inside the web UI browser directly -->
+            <h2>Option 2: Write and Save a Plain Text Note</h2>
+            <div class="text-box-container">
+                <textarea id="textNoteInput" placeholder="Type or paste your text entry content details here..."></textarea>
+                <button class="action-btn" onclick="prepareTextNote()">Prepare Text Note</button>
+            </div>
+
+            <!-- Universal verification submission control interface -->
             <div id="preview-container">
                 <div id="doc-icon">📄</div>
-                <p id="file-info"></p>
-                <img id="image-preview" src="#" alt="Preview">
+                <p id="file-info">No item staged for saving yet.</p>
+                <img id="image-preview" src="#" alt="Staged Upload Preview">
                 <br>
-                <button id="saveButton" class="btn" onclick="saveToCloud()">Save Permanently</button>
+                <button id="saveButton" class="btn" onclick="saveToCloud()">Save Permanently to Cloud</button>
                 <p id="status-message"></p>
             </div>
         </section>
     </main>
 
+    <footer>
+        <p>&copy; 2026 Free Storage Suite • Powered by GitHub Pages & Supabase</p>
+    </footer>
+
     <script>
+        // DOM Elements references setup
         const filePicker = document.getElementById('filePicker');
+        const textNoteInput = document.getElementById('textNoteInput');
         const imagePreview = document.getElementById('image-preview');
         const docIcon = document.getElementById('doc-icon');
         const fileInfo = document.getElementById('file-info');
@@ -65,21 +248,35 @@
         const statusMessage = document.getElementById('status-message');
         let selectedFile = null;
 
+        // --- BACKEND SECURITY CREDENTIAL CONTEXTS ---
         const SUPABASE_URL = "https://supabase.co"; 
-        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY"; // <-- PASTE YOUR PUBLIC ANON KEY HERE
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrbG1ob3Bjdm1wcXJ3Y3NsYWRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDcxMzE4NTcsImV4cCI6MjAyMjg4Nzg1N30.R9Vp7f-U2u79I6W_bFwWJp0V7s-H4n6x7Y9k2L5M1Zg";
+
+        // 1. Dark/Light Display Interface Modifiers
+        const themeButton = document.getElementById('themeButton');
+        themeButton.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        });
 
         function triggerUpload() {
             filePicker.click();
         }
 
+        // 2. Local File Staging Pipeline Listener
         filePicker.addEventListener('change', function(event) {
             if (event.target.files.length > 0) {
-                // FIX 1: Explicitly select index [0] to target the actual binary item instead of a FileList collection object
+                // target logic mapping to grab the specific raw element instance array index explicitly
                 selectedFile = event.target.files[0];
-                fileInfo.textContent = `Ready: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(1)} KB)`;
+                fileInfo.textContent = `Staged File: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(1)} KB)`;
                 saveButton.style.display = 'inline-block';
                 statusMessage.textContent = ""; 
 
+                // Route visually based on data type layout contexts
                 if (selectedFile.type.startsWith('image/')) {
                     docIcon.style.display = 'none';
                     const reader = new FileReader();
@@ -95,39 +292,6 @@
             }
         });
 
-        async function saveToCloud() {
-            if (!selectedFile) return;
-            statusMessage.textContent = "Uploading file to Supabase...";
-            statusMessage.style.color = "orange";
-
-            const fileExtension = selectedFile.name.split('.').pop();
-            const uniqueFileName = `${Date.now()}.${fileExtension}`;
-
-            try {
-                // FIX 2: Restored primary object storage layout structure
-                const response = await fetch(`${SUPABASE_URL}/storage/v1/object/uploads/${uniqueFileName}`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Content-Type': selectedFile.type || 'application/octet-stream'
-                    },
-                    body: selectedFile
-                });
-
-                if (response.ok) {
-                    statusMessage.textContent = "✅ File saved successfully to your cloud bucket!";
-                    statusMessage.style.color = "green";
-                    saveButton.style.display = 'none';
-                } else {
-                    const errData = await response.json();
-                    throw new Error(errData.message || `Upload failed (Status: ${response.status})`);
-                }
-            } catch (error) {
-                statusMessage.textContent = `❌ Error: ${error.message}`;
-                statusMessage.style.color = "red";
-            }
-        }
-    </script>
-</body>
-</html>
+        // 3. String Serialization Stream Compiler
+        function prepareTextNote() {
+            const noteText = textNoteInput.value.trim();
