@@ -1,256 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website - Long Form Text Cloud Saver</title>
-    <style>
-        /* CSS Design System and CSS Variables */
-        :root {
-            --bg-color: #f4f7f6;
-            --text-color: #333;
-            --accent-color: #4a90e2;
-            --card-bg: #ffffff;
-            --border-color: #ccc;
-        }
+    <!-- 1. Include Firebase SDK Modules via CDN -->
+    <script type="module">
+        import { initializeApp } from "https://gstatic.com";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://gstatic.com";
 
-        [data-theme="dark"] {
-            --bg-color: #1a1a1a;
-            --text-color: #f4f7f6;
-            --accent-color: #357abd;
-            --card-bg: #2a2a2a;
-            --border-color: #444;
-        }
+        // 2. Your Web App's Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3w7D_HHL8aOos41gZkg0FUp8svK5Zhbo",
+            authDomain: "set-up-d1a2d.firebaseapp.com",
+            databaseURL: "https://set-up-d1a2d-default-rtdb.firebaseio.com",
+            projectId: "set-up-d1a2d",
+            storageBucket: "set-up-d1a2d.firebasestorage.app",
+            messagingSenderId: "981914259015",
+            appId: "1:981914259015:web:4451f07d7bce804008ab62",
+            measurementId: "G-8HCM7P1NX3"
+        };
 
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            transition: background-color 0.3s, color 0.3s;
-        }
+        // 3. Initialize Firebase & Storage Link
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app);
 
-        header {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        main {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-
-        .profile-card {
-            background-color: var(--card-bg);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-        }
-
-        h1, h2 {
-            margin-top: 0;
-            color: var(--accent-color);
-        }
-
-        /* Option 1: File Upload Block UI */
-        .upload-container {
-            border: 3px dashed var(--accent-color);
-            padding: 2.5rem;
-            text-align: center;
-            border-radius: 8px;
-            background-color: rgba(74, 144, 226, 0.05);
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-        }
-
-        .upload-container:hover {
-            background-color: rgba(74, 144, 226, 0.1);
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        /* Option 2: Written Text Area UI (Expanded for 2000+ words) */
-        .text-box-container {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 1.5rem;
-        }
-
-        textarea {
-            width: 100%;
-            height: 300px; /* Taller area for long documents */
-            padding: 1rem;
-            border-radius: 8px;
-            border: 2px solid var(--accent-color);
-            font-family: inherit;
-            box-sizing: border-box;
-            resize: vertical;
-            background: var(--card-bg);
-            color: var(--text-color);
-            font-size: 1rem;
-            line-height: 1.5;
-        }
-
-        .counter-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            opacity: 0.8;
-            margin-top: 0.4rem;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 2rem 0;
-            font-weight: bold;
-            opacity: 0.5;
-            position: relative;
-        }
-
-        /* Global Status & Media Previews */
-        #preview-container {
-            margin-top: 1.5rem;
-            text-align: center;
-            padding: 1rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        #image-preview {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 8px;
-            display: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-
-        #doc-icon {
-            font-size: 4.5rem;
-            display: none;
-            margin-bottom: 0.5rem;
-        }
-
-        #file-info {
-            font-weight: bold;
-            margin-top: 0.5rem;
-            word-break: break-all;
-        }
-
-        /* Buttons styles */
-        .btn {
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-            margin-top: 1.5rem;
-            display: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: opacity 0.2s;
-        }
-
-        .action-btn {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 0.7rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 0.6rem;
-            align-self: flex-end;
-            transition: opacity 0.2s;
-        }
-
-        .btn:hover, .action-btn:hover {
-            opacity: 0.9;
-        }
-
-        .theme-toggle {
-            background: none;
-            border: 2px solid var(--text-color);
-            color: var(--text-color);
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        #status-message {
-            margin-top: 1rem;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        footer {
-            text-align: center;
-            padding: 3rem 1rem;
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div><strong>MySpace Dashboard</strong></div>
-        <button class="theme-toggle" id="themeButton">Toggle Mode</button>
-    </header>
-
-    <main>
-        <section class="profile-card">
-            <h1>Cloud Note & File Saver 📁</h1>
-            <p>Use this tool to save files or write long-form documents that upload permanently into your connected Supabase storage bucket.</p>
-            
-            <!-- Option 1: Process external local storage files -->
-            <h2>Option 1: Upload a File or Document</h2>
-            <div class="upload-container" onclick="triggerUpload()">
-                <p>Drag & drop your files here or <strong>click to browse folders</strong></p>
-                <input type="file" id="filePicker" class="file-input">
-            </div>
-
-            <div class="divider">─ OR ─</div>
-
-            <!-- Option 2: Build a text snippet file inside the web UI browser directly -->
-            <h2>Option 2: Write Long Messages / Essays (2,000+ words)</h2>
-            <div class="text-box-container">
-                <textarea id="textNoteInput" placeholder="Start typing or paste your long message here..."></textarea>
-                <div class="counter-row">
-                    <span id="wordCount">Words: 0</span>
-                    <span id="charCount">Characters: 0</span>
-                </div>
-                <button class="action-btn" onclick="prepareTextNote()">Prepare Text Note</button>
-            </div>
-
-            <!-- Universal verification submission control interface -->
-            <div id="preview-container">
-                <div id="doc-icon">📄</div>
-                <p id="file-info">No item staged for saving yet.</p>
-                <img id="image-preview" src="#" alt="Staged Upload Preview">
-                <br>
-                <button id="saveButton" class="btn" onclick="saveToCloud()">Save Permanently to Cloud</button>
-                <p id="status-message"></p>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2026 Free Storage Suite • Powered by GitHub Pages & Supabase</p>
-    </footer>
-
-    <script>
         // DOM Elements references setup
         const filePicker = document.getElementById('filePicker');
         const textNoteInput = document.getElementById('textNoteInput');
@@ -261,23 +29,12 @@
         const fileInfo = document.getElementById('file-info');
         const saveButton = document.getElementById('saveButton');
         const statusMessage = document.getElementById('status-message');
-        let selectedFile = null;
-
-        // --- BACKEND SECURITY CREDENTIAL CONTEXTS ---
-        const SUPABASE_URL = "https://supabase.co"; 
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrbG1ob3Bjdm1wcXJ3Y3NsYWRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDcxMzE4NTcsImV4cCI6MjAyMjg4Nzg1N30.R9Vp7f-U2u79I6W_bFwWJp0V7s-H4n6x7Y9k2L5M1Zg";
-
-        // Real-time metrics counters for text tracking
-        textNoteInput.addEventListener('input', () => {
-            const text = textNoteInput.value.trim();
-            const words = text === "" ? 0 : text.split(/\s+/).length;
-            
-            wordCountDisplay.textContent = `Words: ${words.toLocaleString()}`;
-            charCountDisplay.textContent = `Characters: ${text.length.toLocaleString()}`;
-        });
-
-        // Dark/Light Display Interface Modifiers
         const themeButton = document.getElementById('themeButton');
+
+        // Global variable to store the file currently staged for upload
+        let stagedFile = null;
+
+        // Dark Mode Theme Toggle
         themeButton.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             if (currentTheme === 'dark') {
@@ -287,12 +44,114 @@
             }
         });
 
-        function triggerUpload() {
+        // Click handler to open hidden native file picker
+        window.triggerUpload = function() {
             filePicker.click();
         }
 
-        // Local File Staging Pipeline Listener
-        filePicker.addEventListener('change', function(event) {
-            if (event.target.files.length > 0) {
-                selectedFile = event.target.files[0];
-                fileInfo.textContent = `Staged File: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(1)} KB)`;
+        // Monitor File Input changes (Option 1)
+        filePicker.addEventListener('change', (e) => {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                stageFileForUpload(files[0]);
+            }
+        });
+
+        // Word & Character Counter
+        textNoteInput.addEventListener('input', () => {
+            const text = textNoteInput.value.trim();
+            const words = text === '' ? 0 : text.split(/\s+/).length;
+            const characters = text.length;
+
+            wordCountDisplay.textContent = `Words: ${words}`;
+            charCountDisplay.textContent = `Characters: ${characters}`;
+        });
+
+        // Convert Written Text into a downloadable Text File (Option 2)
+        window.prepareTextNote = function() {
+            const text = textNoteInput.value.trim();
+            if (!text) {
+                alert('Please write some text before preparing the note.');
+                return;
+            }
+
+            // Create a virtual file snippet from the textarea string
+            const blob = new Blob([text], { type: 'text/plain' });
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const virtualFile = new File([blob], `note-${timestamp}.txt`, { type: 'text/plain' });
+
+            stageFileForUpload(virtualFile);
+            statusMessage.textContent = "Text note successfully prepared!";
+            statusMessage.style.color = "#2ecc71";
+        }
+
+        // UI Render Manager for Staged Assets
+        function stageFileForUpload(file) {
+            stagedFile = file;
+            
+            // Reset views
+            imagePreview.style.display = 'none';
+            docIcon.style.display = 'none';
+            statusMessage.textContent = '';
+
+            // Update text meta descriptions
+            const fileSizeKB = (file.size / 1024).toFixed(2);
+            fileInfo.innerHTML = `Staged File: <strong>${file.name}</strong> (${fileSizeKB} KB)`;
+
+            // Check if file is an image to show preview, else show document icon
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                docIcon.style.display = 'block';
+            }
+
+            // Make the universal upload save button visible
+            saveButton.style.display = 'inline-block';
+            saveButton.disabled = false;
+        }
+
+        // 4. Live Firebase Cloud Storage Upload Logic
+        window.saveToCloud = async function() {
+            if (!stagedFile) {
+                alert('No file staged for upload.');
+                return;
+            }
+
+            statusMessage.textContent = "Uploading to Firebase Storage...";
+            statusMessage.style.color = "var(--accent-color)";
+            saveButton.disabled = true;
+
+            try {
+                // Create a unique storage reference location path inside Firebase
+                const storageRef = ref(storage, 'uploads/' + stagedFile.name);
+                
+                // Upload file bytes directly to the cloud path bucket
+                const snapshot = await uploadBytes(storageRef, stagedFile);
+                
+                // Optional: Get the permanent public link
+                const downloadURL = await getDownloadURL(snapshot.ref);
+
+                statusMessage.textContent = `🚀 Success! Saved permanently to the cloud.`;
+                statusMessage.style.color = "#2ecc71";
+                
+                // Clear state after success
+                stagedFile = null;
+                saveButton.style.display = 'none';
+                textNoteInput.value = '';
+                wordCountDisplay.textContent = 'Words: 0';
+                charCountDisplay.textContent = 'Characters: 0';
+            } catch (error) {
+                console.error(error);
+                statusMessage.textContent = `❌ Upload failed: ${error.message}`;
+                statusMessage.style.color = "#e74c3c";
+                saveButton.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
