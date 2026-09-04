@@ -1,13 +1,14 @@
-    <!-- 1. Include Firebase SDK Modules via CDN -->
+    <!-- Include Firebase Core, Storage, and Realtime Database SDK Modules via CDN -->
     <script type="module">
         import { initializeApp } from "https://gstatic.com";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://gstatic.com";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://gstatic.com";
+        import { getDatabase, ref as dbRef, push, set } from "https://gstatic.com";
 
-        // 2. Your Web App's Firebase Configuration
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyD3w7D_HHL8aOos41gZkg0FUp8svK5Zhbo",
-            authDomain: "set-up-d1a2d.firebaseapp.com",
-            databaseURL: "https://set-up-d1a2d-default-rtdb.firebaseio.com",
+            authDomain: "://firebaseapp.com",
+            databaseURL: "https://firebaseio.com",
             projectId: "set-up-d1a2d",
             storageBucket: "set-up-d1a2d.firebasestorage.app",
             messagingSenderId: "981914259015",
@@ -15,11 +16,12 @@
             measurementId: "G-8HCM7P1NX3"
         };
 
-        // 3. Initialize Firebase & Storage Link
+        // Initialize Firebase services
         const app = initializeApp(firebaseConfig);
         const storage = getStorage(app);
+        const database = getDatabase(app);
 
-        // DOM Elements references setup
+        // DOM Elements
         const filePicker = document.getElementById('filePicker');
         const textNoteInput = document.getElementById('textNoteInput');
         const wordCountDisplay = document.getElementById('wordCount');
@@ -31,10 +33,9 @@
         const statusMessage = document.getElementById('status-message');
         const themeButton = document.getElementById('themeButton');
 
-        // Global variable to store the file currently staged for upload
         let stagedFile = null;
 
-        // Dark Mode Theme Toggle
+        // Theme Toggle
         themeButton.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             if (currentTheme === 'dark') {
@@ -44,16 +45,16 @@
             }
         });
 
-        // Click handler to open hidden native file picker
+        // Open hidden file picker
         window.triggerUpload = function() {
             filePicker.click();
         }
 
-        // Monitor File Input changes (Option 1)
+        // Monitor File Input changes
         filePicker.addEventListener('change', (e) => {
             const files = e.target.files;
             if (files && files.length > 0) {
-                stageFileForUpload(files[0]);
+                stageFileForUpload(files[0]); // Explicitly pass the single file object
             }
         });
 
@@ -67,7 +68,7 @@
             charCountDisplay.textContent = `Characters: ${characters}`;
         });
 
-        // Convert Written Text into a downloadable Text File (Option 2)
+        // Convert Written Text into a file object
         window.prepareTextNote = function() {
             const text = textNoteInput.value.trim();
             if (!text) {
@@ -75,7 +76,6 @@
                 return;
             }
 
-            // Create a virtual file snippet from the textarea string
             const blob = new Blob([text], { type: 'text/plain' });
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             const virtualFile = new File([blob], `note-${timestamp}.txt`, { type: 'text/plain' });
@@ -85,20 +85,17 @@
             statusMessage.style.color = "#2ecc71";
         }
 
-        // UI Render Manager for Staged Assets
+        // UI Manager for Staged Assets
         function stageFileForUpload(file) {
             stagedFile = file;
             
-            // Reset views
             imagePreview.style.display = 'none';
             docIcon.style.display = 'none';
             statusMessage.textContent = '';
 
-            // Update text meta descriptions
             const fileSizeKB = (file.size / 1024).toFixed(2);
             fileInfo.innerHTML = `Staged File: <strong>${file.name}</strong> (${fileSizeKB} KB)`;
 
-            // Check if file is an image to show preview, else show document icon
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -110,44 +107,55 @@
                 docIcon.style.display = 'block';
             }
 
-            // Make the universal upload save button visible
             saveButton.style.display = 'inline-block';
             saveButton.disabled = false;
         }
 
-        // 4. Live Firebase Cloud Storage Upload Logic
+        // Live Cloud Storage + Database Upload Logic
         window.saveToCloud = async function() {
             if (!stagedFile) {
                 alert('No file staged for upload.');
                 return;
             }
 
-            statusMessage.textContent = "Uploading to Firebase Storage...";
+            statusMessage.textContent = "Uploading asset to storage...";
             statusMessage.style.color = "var(--accent-color)";
             saveButton.disabled = true;
 
             try {
-                // Create a unique storage reference location path inside Firebase
-                const storageRef = ref(storage, 'uploads/' + stagedFile.name);
+                // 1. Upload to Storage
+                const uniqueFileName = Date.now() + '_' + stagedFile.name;
+                const fileStorageRef = storageRef(storage, 'uploads/' + uniqueFileName);
+                const snapshot = await uploadBytes(fileStorageRef, stagedFile);
                 
-                // Upload file bytes directly to the cloud path bucket
-                const snapshot = await uploadBytes(storageRef, stagedFile);
-                
-                // Optional: Get the permanent public link
+                // 2. Fetch URL
                 const downloadURL = await getDownloadURL(snapshot.ref);
 
-                statusMessage.textContent = `🚀 Success! Saved permanently to the cloud.`;
+                // 3. Write to Realtime Database
+                statusMessage.textContent = "Saving file details to Database...";
+                const dbUploadsFolder = dbRef(database, 'fileLogs');
+                const newRecordRef = push(dbUploadsFolder);
+                
+                await set(newRecordRef, {
+                    fileName: stagedFile.name,
+                    fileSizeKB: (stagedFile.size / 1024).toFixed(2),
+                    fileType: stagedFile.type,
+                    uploadedAt: new Date().toISOString(),
+                    fileUrl: downloadURL
+                });
+
+                statusMessage.textContent = `🚀 Success! "${stagedFile.name}" stored and logged.`;
                 statusMessage.style.color = "#2ecc71";
                 
-                // Clear state after success
+                // Reset State
                 stagedFile = null;
                 saveButton.style.display = 'none';
                 textNoteInput.value = '';
                 wordCountDisplay.textContent = 'Words: 0';
                 charCountDisplay.textContent = 'Characters: 0';
             } catch (error) {
-                console.error(error);
-                statusMessage.textContent = `❌ Upload failed: ${error.message}`;
+                console.error("Upload error details:", error);
+                statusMessage.textContent = `❌ Error: ${error.message}`;
                 statusMessage.style.color = "#e74c3c";
                 saveButton.disabled = false;
             }
