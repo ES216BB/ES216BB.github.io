@@ -84,9 +84,9 @@
         .btn-primary { background: var(--accent-color); color: white; }
         .btn-secondary { background: #7f8c8d; color: white; }
         .btn-theme { background: transparent; border: 1px solid var(--border-color); color: var(--text-color); }
-        
+
         #filePicker { display: none; }
-        
+
         .preview-zone {
             margin-top: 20px;
             text-align: center;
@@ -155,15 +155,18 @@
 
     <!-- Firebase Core, Storage, and Realtime Database Modules via CDN -->
     <script type="module">
-        import { initializeApp } from "https://gstatic.com";
-        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://gstatic.com";
-        import { getDatabase, ref as dbRef, push, set } from "https://gstatic.com";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+        import { getDatabase, ref as dbRef, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
         // Your verified backend credentials
+        // NOTE: fill these in with the values from your Firebase project settings.
+        // authDomain is "<project-id>.firebaseapp.com" and databaseURL is your
+        // Realtime Database's URL (found in the Firebase console, Realtime Database tab).
         const firebaseConfig = {
             apiKey: "AIzaSyD3w7D_HHL8aOos41gZkg0FUp8svK5Zhbo",
-            authDomain: "://firebaseapp.com",
-            databaseURL: "https://firebaseio.com",
+            authDomain: "set-up-d1a2d.firebaseapp.com",
+            databaseURL: "https://set-up-d1a2d-default-rtdb.firebaseio.com",
             projectId: "set-up-d1a2d",
             storageBucket: "set-up-d1a2d.firebasestorage.app",
             messagingSenderId: "981914259015",
@@ -176,7 +179,7 @@
         const storage = getStorage(app);
         const database = getDatabase(app);
 
-        // Bind DOM references 
+        // Bind DOM references
         const filePicker = document.getElementById('filePicker');
         const textNoteInput = document.getElementById('textNoteInput');
         const wordCountDisplay = document.getElementById('wordCount');
@@ -209,7 +212,7 @@
         filePicker.addEventListener('change', (e) => {
             const files = e.target.files;
             if (files && files.length > 0) {
-                stageFileForUpload(files[0]); 
+                stageFileForUpload(files[0]);
             }
         });
 
@@ -223,7 +226,7 @@
             charCountDisplay.textContent = `Characters: ${characters}`;
         });
 
-        // Intercept text layout and bundle into a file object 
+        // Intercept text layout and bundle into a file object
         window.prepareTextNote = function() {
             const text = textNoteInput.value.trim();
             if (!text) {
@@ -243,7 +246,7 @@
         // Manage preview state and handle file arrays securely
         function stageFileForUpload(file) {
             stagedFile = file;
-            
+
             imagePreview.style.display = 'none';
             docIcon.style.display = 'none';
             statusMessage.textContent = '';
@@ -269,3 +272,44 @@
         // Upload pipeline to Cloud Storage and Realtime Database log folders
         window.saveToCloud = async function() {
             if (!stagedFile) {
+                statusMessage.textContent = "No file staged yet.";
+                statusMessage.style.color = "#e74c3c";
+                return;
+            }
+
+            saveButton.disabled = true;
+            statusMessage.style.color = "var(--text-color)";
+            statusMessage.textContent = "Uploading...";
+
+            try {
+                // 1. Upload the raw bytes to Cloud Storage
+                const path = `assets/${Date.now()}-${stagedFile.name}`;
+                const fileRef = storageRef(storage, path);
+                await uploadBytes(fileRef, stagedFile);
+
+                // 2. Get a public download URL for the uploaded file
+                const downloadURL = await getDownloadURL(fileRef);
+
+                // 3. Log the metadata as a new record in the Realtime Database
+                const logRef = push(dbRef(database, 'assets'));
+                await set(logRef, {
+                    name: stagedFile.name,
+                    type: stagedFile.type || 'text/plain',
+                    sizeKB: (stagedFile.size / 1024).toFixed(2),
+                    url: downloadURL,
+                    uploadedAt: new Date().toISOString()
+                });
+
+                statusMessage.textContent = "✅ Asset saved to cloud storage & database!";
+                statusMessage.style.color = "#2ecc71";
+            } catch (err) {
+                console.error(err);
+                statusMessage.textContent = `❌ Upload failed: ${err.message}`;
+                statusMessage.style.color = "#e74c3c";
+            } finally {
+                saveButton.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
