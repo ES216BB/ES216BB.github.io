@@ -159,10 +159,6 @@
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
         import { getDatabase, ref as dbRef, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // Your verified backend credentials
-        // NOTE: fill these in with the values from your Firebase project settings.
-        // authDomain is "<project-id>.firebaseapp.com" and databaseURL is your
-        // Realtime Database's URL (found in the Firebase console, Realtime Database tab).
         const firebaseConfig = {
             apiKey: "AIzaSyD3w7D_HHL8aOos41gZkg0FUp8svK5Zhbo",
             authDomain: "set-up-d1a2d.firebaseapp.com",
@@ -174,12 +170,10 @@
             measurementId: "G-8HCM7P1NX3"
         };
 
-        // Connect Services
         const app = initializeApp(firebaseConfig);
         const storage = getStorage(app);
         const database = getDatabase(app);
 
-        // Bind DOM references
         const filePicker = document.getElementById('filePicker');
         const textNoteInput = document.getElementById('textNoteInput');
         const wordCountDisplay = document.getElementById('wordCount');
@@ -193,6 +187,70 @@
 
         let stagedFile = null;
 
+        // --- EXPIRATION STORAGE CORE LOGIC ---
+        const STORAGE_KEY = "staged_cpp_code";
+        const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+
+        function updateMetrics() {
+            const text = textNoteInput.value.trim();
+            const words = text === '' ? 0 : text.split(/\s+/).length;
+            wordCountDisplay.textContent = `Words: ${words}`;
+            charCountDisplay.textContent = `Characters: ${text.length}`;
+        }
+
+        // Check if there's unexpired code saved in local storage on page load
+        function checkAndLoadSavedCode() {
+            const savedItemStr = localStorage.getItem(STORAGE_KEY);
+            if (!savedItemStr) return;
+
+            try {
+                const item = JSON.parse(savedItemStr);
+                const now = new Date().getTime();
+
+                if (now > item.expiry) {
+                    localStorage.removeItem(STORAGE_KEY);
+                } else {
+                    textNoteInput.value = item.value;
+                    updateMetrics();
+                    statusMessage.textContent = "🔄 Restored unsaved C++ code from local cache.";
+                    statusMessage.style.color = "var(--accent-color)";
+                    setTimeout(() => { statusMessage.textContent = ""; }, 4000);
+                }
+            } catch (e) {
+                console.error("Error reading from local storage:", e);
+            }
+        }
+
+        // Run recovery check instantly on boot
+        checkAndLoadSavedCode();
+
+        // Modifying your staging logic to commit to storage for 2 hours
+        window.prepareTextNote = function() {
+            const textData = textNoteInput.value;
+            if (!textData.trim()) {
+                statusMessage.textContent = "❌ Please enter some C++ code first.";
+                statusMessage.style.color = "#e74c3c";
+                return;
+            }
+
+            // Set the payload with a 2-hour stamp expiration
+            const now = new Date().getTime();
+            const storagePayload = {
+                value: textData,
+                expiry: now + TWO_HOURS_MS
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(storagePayload));
+
+            // Setup preview zones
+            imagePreview.style.display = 'none';
+            docIcon.style.display = 'block';
+            fileInfo.textContent = `Text note staged successfully (Saved locally for 2 hours).`;
+            saveButton.style.display = 'block';
+            
+            statusMessage.textContent = "💾 Staged & cached successfully!";
+            statusMessage.style.color = "#2ecc71";
+        };
+
         // Theme switching handler
         themeButton.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
@@ -203,113 +261,8 @@
             }
         });
 
-        // Bridge hidden file selection dialog
         window.triggerUpload = function() {
             filePicker.click();
         }
 
-        // Catch file picker changes
         filePicker.addEventListener('change', (e) => {
-            const files = e.target.files;
-            if (files && files.length > 0) {
-                stageFileForUpload(files[0]);
-            }
-        });
-
-        // Track live metrics on the text grid
-        textNoteInput.addEventListener('input', () => {
-            const text = textNoteInput.value.trim();
-            const words = text === '' ? 0 : text.split(/\s+/).length;
-            const characters = text.length;
-
-            wordCountDisplay.textContent = `Words: ${words}`;
-            charCountDisplay.textContent = `Characters: ${characters}`;
-        });
-
-        // Intercept text layout and bundle into a file object
-        window.prepareTextNote = function() {
-            const text = textNoteInput.value.trim();
-            if (!text) {
-                alert('Please write some text before preparing the note.');
-                return;
-            }
-
-            const blob = new Blob([text], { type: 'text/plain' });
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const virtualFile = new File([blob], `note-${timestamp}.txt`, { type: 'text/plain' });
-
-            stageFileForUpload(virtualFile);
-            statusMessage.textContent = "Text note successfully prepared!";
-            statusMessage.style.color = "#2ecc71";
-        }
-
-        // Manage preview state and handle file arrays securely
-        function stageFileForUpload(file) {
-            stagedFile = file;
-
-            imagePreview.style.display = 'none';
-            docIcon.style.display = 'none';
-            statusMessage.textContent = '';
-
-            const fileSizeKB = (file.size / 1024).toFixed(2);
-            fileInfo.innerHTML = `Staged File: <strong>${file.name}</strong> (${fileSizeKB} KB)`;
-
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'inline-block';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                docIcon.style.display = 'block';
-            }
-
-            saveButton.style.display = 'inline-block';
-            saveButton.disabled = false;
-        }
-
-        // Upload pipeline to Cloud Storage and Realtime Database log folders
-        window.saveToCloud = async function() {
-            if (!stagedFile) {
-                statusMessage.textContent = "No file staged yet.";
-                statusMessage.style.color = "#e74c3c";
-                return;
-            }
-
-            saveButton.disabled = true;
-            statusMessage.style.color = "var(--text-color)";
-            statusMessage.textContent = "Uploading...";
-
-            try {
-                // 1. Upload the raw bytes to Cloud Storage
-                const path = `assets/${Date.now()}-${stagedFile.name}`;
-                const fileRef = storageRef(storage, path);
-                await uploadBytes(fileRef, stagedFile);
-
-                // 2. Get a public download URL for the uploaded file
-                const downloadURL = await getDownloadURL(fileRef);
-
-                // 3. Log the metadata as a new record in the Realtime Database
-                const logRef = push(dbRef(database, 'assets'));
-                await set(logRef, {
-                    name: stagedFile.name,
-                    type: stagedFile.type || 'text/plain',
-                    sizeKB: (stagedFile.size / 1024).toFixed(2),
-                    url: downloadURL,
-                    uploadedAt: new Date().toISOString()
-                });
-
-                statusMessage.textContent = "✅ Asset saved to cloud storage & database!";
-                statusMessage.style.color = "#2ecc71";
-            } catch (err) {
-                console.error(err);
-                statusMessage.textContent = `❌ Upload failed: ${err.message}`;
-                statusMessage.style.color = "#e74c3c";
-            } finally {
-                saveButton.disabled = false;
-            }
-        }
-    </script>
-</body>
-</html>
