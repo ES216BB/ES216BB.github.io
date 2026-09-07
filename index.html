@@ -3,266 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Asset Stager</title>
+    <title>TGeyserEnergy Management System Code</title>
     <style>
-        :root {
-            --bg-color: #f5f6fa;
-            --card-color: #ffffff;
-            --text-color: #2f3640;
-            --accent-color: #3498db;
-            --border-color: #dcdde1;
-        }
-        [data-theme="dark"] {
-            --bg-color: #1e272e;
-            --card-color: #2f3640;
-            --text-color: #f5f6fa;
-            --border-color: #485460;
-        }
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
             padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            transition: background 0.3s, color 0.3s;
+            margin: 0;
         }
         .container {
-            background: var(--card-color);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 30px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            max-width: 900px;
+            margin: 0 auto;
         }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        h1 {
+            color: #ffffff;
+            border-bottom: 1px solid #3c3c3c;
+            padding-bottom: 10px;
         }
-        textarea {
-            width: 100%;
-            height: 120px;
-            box-sizing: border-box;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px;
-            background: var(--bg-color);
-            color: var(--text-color);
-            resize: none;
-            font-size: 14px;
-        }
-        .counter-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            margin-top: 5px;
-            color: #7f8c8d;
-        }
-        .button-group {
-            margin-top: 25px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        button {
-            padding: 10px 16px;
-            border: none;
+        pre {
+            background-color: #2d2d2d;
+            border: 1px solid #3c3c3c;
             border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: opacity 0.2s;
-        }
-        button:hover { opacity: 0.9; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-primary { background: var(--accent-color); color: white; }
-        .btn-secondary { background: #7f8c8d; color: white; }
-        .btn-theme { background: transparent; border: 1px solid var(--border-color); color: var(--text-color); }
-
-        #filePicker { display: none; }
-
-        .preview-zone {
-            margin-top: 20px;
-            text-align: center;
-            border: 2px dashed var(--border-color);
-            border-radius: 8px;
             padding: 15px;
-            background: var(--bg-color);
+            overflow-x: auto;
         }
-        #image-preview {
-            max-width: 100%;
-            max-height: 150px;
-            border-radius: 6px;
-            display: none;
-        }
-        #doc-icon {
-            font-size: 48px;
-            display: none;
-        }
-        #status-message {
-            margin-top: 15px;
+        code {
+            font-family: "Consolas", "Courier New", Courier, monospace;
             font-size: 14px;
-            font-weight: bold;
-            text-align: center;
+            line-height: 1.5;
+            color: #9cdcfe;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="header">
-            <h2>Cloud Asset Stager</h2>
-            <button class="btn-theme" id="themeButton">🌓 Theme</button>
-        </div>
+<div class="container">
+    <h1>TGeyserEnergy Management System C++ Source Code</h1>
+    
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include &lt;string&gt;
+#include &lt;iomanip&gt;
 
-        <!-- Text Workspace -->
-        <textarea id="textNoteInput" placeholder="Type or paste your notes here..."></textarea>
-        <div class="counter-row">
-            <span id="wordCount">Words: 0</span>
-            <span id="charCount">Characters: 0</span>
-        </div>
+using namespace std;
 
-        <div class="button-group">
-            <button class="btn-secondary" onclick="prepareTextNote()">📝 Stage Written Text</button>
-            <button class="btn-secondary" onclick="triggerUpload()">📎 Choose External File</button>
-        </div>
+// Structure Definition
+struct TGeyserEnergy {
+    int geyserID;
+    float ratedPower;
+    float energyUsed;
+    TGeyserEnergy* next;
 
-        <!-- Hidden Native File Input -->
-        <input type="file" id="filePicker">
+    // Member function declaration
+    void InitialiseGeyser(int id, float power, float energy);
+};
 
-        <!-- Asset Preview Window -->
-        <div class="preview-zone">
-            <div id="doc-icon">📄</div>
-            <img id="image-preview" alt="Upload preview">
-            <p id="file-info" style="font-size: 13px; margin: 10px 0 0 0;">No file currently staged.</p>
-        </div>
+// 1. InitialiseGeyser Function
+void TGeyserEnergy::InitialiseGeyser(int id, float power, float energy) {
+    geyserID = id;
+    ratedPower = power;
+    energyUsed = energy;
+    next = nullptr;
+}
 
-        <!-- Cloud Submission -->
-        <div style="margin-top: 20px; text-align: center;">
-            <button id="saveButton" class="btn-primary" style="display: none; width: 100%; padding: 12px;" onclick="saveToCloud()">
-                ☁️ Save Asset to Cloud Storage & DB
-            </button>
-        </div>
-
-        <div id="status-message"></div>
-    </div>
-
-    <!-- Firebase Core, Storage, and Realtime Database Modules via CDN -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-        import { getDatabase, ref as dbRef, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyD3w7D_HHL8aOos41gZkg0FUp8svK5Zhbo",
-            authDomain: "set-up-d1a2d.firebaseapp.com",
-            databaseURL: "https://set-up-d1a2d-default-rtdb.firebaseio.com",
-            projectId: "set-up-d1a2d",
-            storageBucket: "set-up-d1a2d.firebasestorage.app",
-            messagingSenderId: "981914259015",
-            appId: "1:981914259015:web:4451f07d7bce804008ab62",
-            measurementId: "G-8HCM7P1NX3"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const storage = getStorage(app);
-        const database = getDatabase(app);
-
-        const filePicker = document.getElementById('filePicker');
-        const textNoteInput = document.getElementById('textNoteInput');
-        const wordCountDisplay = document.getElementById('wordCount');
-        const charCountDisplay = document.getElementById('charCount');
-        const imagePreview = document.getElementById('image-preview');
-        const docIcon = document.getElementById('doc-icon');
-        const fileInfo = document.getElementById('file-info');
-        const saveButton = document.getElementById('saveButton');
-        const statusMessage = document.getElementById('status-message');
-        const themeButton = document.getElementById('themeButton');
-
-        let stagedFile = null;
-
-        // --- EXPIRATION STORAGE CORE LOGIC ---
-        const STORAGE_KEY = "staged_cpp_code";
-        const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
-
-        function updateMetrics() {
-            const text = textNoteInput.value.trim();
-            const words = text === '' ? 0 : text.split(/\s+/).length;
-            wordCountDisplay.textContent = `Words: ${words}`;
-            charCountDisplay.textContent = `Characters: ${text.length}`;
+// 2. AddGeyserToList Function
+TGeyserEnergy* AddGeyserToList(TGeyserEnergy **startNode) {
+    TGeyserEnergy* newNode = new TGeyserEnergy();
+    
+    if (*startNode == nullptr) {
+        *startNode = newNode;
+    } else {
+        TGeyserEnergy* temp = *startNode;
+        while (temp-&gt;next != nullptr) {
+            temp = temp-&gt;next;
         }
+        temp-&gt;next = newNode;
+    }
+    return newNode;
+}
 
-        // Check if there's unexpired code saved in local storage on page load
-        function checkAndLoadSavedCode() {
-            const savedItemStr = localStorage.getItem(STORAGE_KEY);
-            if (!savedItemStr) return;
+// 7. DeleteAllGeysers Function
+void DeleteAllGeysers(TGeyserEnergy **startNode) {
+    TGeyserEnergy* current = *startNode;
+    while (current != nullptr) {
+        TGeyserEnergy* nextNode = current-&gt;next;
+        delete current;
+        current = nextNode;
+    }
+    *startNode = nullptr;
+}
 
-            try {
-                const item = JSON.parse(savedItemStr);
-                const now = new Date().getTime();
+// 3. ReadDataFromFile Function
+void ReadDataFromFile(string filename, TGeyserEnergy **startNode) {
+    DeleteAllGeysers(startNode);
+    
+    ifstream inFile(filename);
+    if (!inFile) {
+        cout &lt;&lt; "Error opening file: " &lt;&lt; filename &lt;&lt; endl;
+        return;
+    }
 
-                if (now > item.expiry) {
-                    localStorage.removeItem(STORAGE_KEY);
-                } else {
-                    textNoteInput.value = item.value;
-                    updateMetrics();
-                    statusMessage.textContent = "🔄 Restored unsaved C++ code from local cache.";
-                    statusMessage.style.color = "var(--accent-color)";
-                    setTimeout(() => { statusMessage.textContent = ""; }, 4000);
-                }
-            } catch (e) {
-                console.error("Error reading from local storage:", e);
-            }
-        }
+    int id;
+    float power, energy;
+    
+    while (inFile &gt;&gt; id &gt;&gt; power &gt;&gt; energy) {
+        TGeyserEnergy* newNode = AddGeyserToList(startNode);
+        newNode-&gt;InitialiseGeyser(id, power, energy);
+    }
+    
+    inFile.close();
+}
 
-        // Run recovery check instantly on boot
-        checkAndLoadSavedCode();
+// 4. DisplayGeyserData Function
+void DisplayGeyserData(TGeyserEnergy *startNode) {
+    if (startNode == nullptr) {
+        cout &lt;&lt; "No data loaded...." &lt;&lt; endl;
+        return;
+    }
 
-        // Modifying your staging logic to commit to storage for 2 hours
-        window.prepareTextNote = function() {
-            const textData = textNoteInput.value;
-            if (!textData.trim()) {
-                statusMessage.textContent = "❌ Please enter some C++ code first.";
-                statusMessage.style.color = "#e74c3c";
-                return;
-            }
+    cout &lt;&lt; left &lt;&lt; setw(15) &lt;&lt; "Geyser ID" 
+         &lt;&lt; setw(20) &lt;&lt; "Rated power (kW)" 
+         &lt;&lt; setw(25) &lt;&lt; "Energy consumption (kWh)" &lt;&lt; endl;
 
-            // Set the payload with a 2-hour stamp expiration
-            const now = new Date().getTime();
-            const storagePayload = {
-                value: textData,
-                expiry: now + TWO_HOURS_MS
-            };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(storagePayload));
+    TGeyserEnergy* temp = startNode;
+    while (temp != nullptr) {
+        cout &lt;&lt; left &lt;&lt; setw(15) &lt;&lt; temp-&gt;geyserID 
+             &lt;&lt; setw(20) &lt;&lt; temp-&gt;ratedPower 
+             &lt;&lt; setw(25) &lt;&lt; temp-&gt;energyUsed &lt;&lt; endl;
+        temp = temp-&gt;next;
+    }
+}
 
-            // Setup preview zones
-            imagePreview.style.display = 'none';
-            docIcon.style.display = 'block';
-            fileInfo.textContent = `Text note staged successfully (Saved locally for 2 hours).`;
-            saveButton.style.display = 'block';
-            
-            statusMessage.textContent = "💾 Staged & cached successfully!";
-            statusMessage.style.color = "#2ecc71";
-        };
+// 5. AverageEnergyConsumption Function
+float AverageEnergyConsumption(TGeyserEnergy *startNode) {
+    if (startNode == nullptr) {
+        return 0.0f;
+    }
 
-        // Theme switching handler
-        themeButton.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            if (currentTheme === 'dark') {
-                document.documentElement.removeAttribute('data-theme');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-        });
+    float totalEnergy = 0.0f;
+    int count = 0;
+    TGeyserEnergy* temp = startNode;
 
-        window.triggerUpload = function() {
-            filePicker.click();
-        }
+    while (temp != nullptr) {
+        totalEnergy += temp-&gt;energyUsed;
+        count++;
+        temp = temp-&gt;next;
+    }
 
-        filePicker.addEventListener('change', (e) => {
+    return totalEnergy / count;
+}
+
+// 6. DeleteSingleGeyser Function
+void DeleteSingleGeyser(TGeyserEnergy **startNode) {
+    if (*startNode == nullptr) {
+        return;
+    }
+    
+    TGeyserEnergy* temp = *startNode;
+    *startNode = (*startNode)-&gt;next;
+    delete temp;
+}</code></pre>
+</div>
+
+</body>
+</html>
