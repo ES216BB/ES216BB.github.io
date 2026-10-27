@@ -8,7 +8,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: #ffffff;
-            color: #1a1a1a;
+            color: #24292e;
             padding: 20px;
             margin: 0;
         }
@@ -19,12 +19,158 @@
         .bold-text {
             font-size: 28px;
             font-weight: bold;
+            margin-bottom: 20px;
+        }
+        pre {
+            background-color: #f6f8fa;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: Consolas, "Courier New", Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #005cc5;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="bold-text"></div>
+        <div class="bold-text">DZANA</div>
+        <pre><code>// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! //
+/// - SUBMIT ONLY THIS FILE
+/// - CHANGE THE FILE NAME TO STUDENT NUMBER (e.g. 123456789.h)
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! //
+
+// ------------------------------------------------------------------- //
+/// Student & Evaluation Details - COMPLETE
+// ------------------------------------------------------------------- //
+/// Student Number:
+/// Date: October 2026
+/// Campus: Tshwane University of Technology
+/// Department: Electrical Engineering
+/// Venue:
+// ------------------------------------------------------------------- //
+
+// ------------------------------------------------------------------- //
+/// Class Libraries - DO NOT CHANGE
+// ------------------------------------------------------------------- //
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+// ------------------------------------------------------------------- //
+
+// ------------------------------------------------------------------- //
+/// START - STUDENT CODE
+// ------------------------------------------------------------------- //
+
+// ------------------------------------------------------------------- //
+/// 0. EquipmentLoan Class Definition
+// ------------------------------------------------------------------- //
+class EquipmentLoan {
+private:
+    string EquipmentName;
+    string LaboratoryName;
+    int MaxBorrowers;
+    string* BorrowerList;
+    int BorrowerCount;
+
+public:
+    EquipmentLoan();
+    ~EquipmentLoan();
+    void SetDetails(string EN, string LN, int MB);
+    void AddBorrower(string BorrowerName);
+    void DisplayEquipmentDetails();
+    void DisplayBorrowerList();
+    float LoanRevenue(float LoanFee);
+};
+
+// ------------------------------------------------------------------- //
+/// 1. Constructor Function
+// ------------------------------------------------------------------- //
+EquipmentLoan::EquipmentLoan() {
+    EquipmentName = "";
+    LaboratoryName = "";
+    MaxBorrowers = 0;
+    BorrowerList = nullptr;
+    BorrowerCount = 0;
+}
+
+// ------------------------------------------------------------------- //
+/// 2. Destructor Function
+// ------------------------------------------------------------------- //
+EquipmentLoan::~EquipmentLoan() {
+    if (BorrowerList != nullptr) {
+        delete[] BorrowerList;
+        BorrowerList = nullptr;
+    }
+}
+
+// ------------------------------------------------------------------- //
+/// 3. Set Details Function
+// ------------------------------------------------------------------- //
+void EquipmentLoan::SetDetails(string EN, string LN, int MB) {
+    EquipmentName = EN;
+    LaboratoryName = LN;
+    MaxBorrowers = MB;
+    BorrowerCount = 0;
+    
+    if (MB &gt; 0) {
+        BorrowerList = new string[MB];
+    } else {
+        BorrowerList = nullptr;
+    }
+}
+
+// ------------------------------------------------------------------- //
+/// 4. AddBorrower Function
+// ------------------------------------------------------------------- //
+void EquipmentLoan::AddBorrower(string BorrowerName) {
+    if (BorrowerCount &lt; MaxBorrowers) {
+        BorrowerList[BorrowerCount] = BorrowerName;
+        BorrowerCount++;
+    } else {
+        cout &lt;&lt; "Maximum borrowers reached: " << BorrowerName << " not added." &lt;&lt; endl;
+    }
+}
+
+// ------------------------------------------------------------------- //
+/// 5. DisplayEquipmentDetails Function
+// ------------------------------------------------------------------- //
+void EquipmentLoan::DisplayEquipmentDetails() {
+    cout &lt;&lt; "Equipment Name: " &lt;&lt; EquipmentName &lt;&lt; endl;
+    cout &lt;&lt; "Laboratory: " &lt;&lt; LaboratoryName &lt;&lt; endl;
+    cout &lt;&lt; "Max Borrowers: " &lt;&lt; MaxBorrowers &lt;&lt; endl;
+    cout &lt;&lt; "Current Borrowers: " &lt;&lt; BorrowerCount &lt;&lt; endl;
+}
+
+// ------------------------------------------------------------------- //
+/// 6. DisplayBorrowerList Function
+// ------------------------------------------------------------------- //
+void EquipmentLoan::DisplayBorrowerList() {
+    if (BorrowerCount == 0) {
+        cout &lt;&lt; "No borrowers registered." &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "Borrower List: ";
+        for (int i = 0; i &lt; BorrowerCount; i++) {
+            cout &lt;&lt; BorrowerList[i] &lt;&lt; " ; ";
+        }
+        cout &lt;&lt; endl;
+    }
+}
+
+// ------------------------------------------------------------------- //
+/// 7. LoanRevenue Function
+// ------------------------------------------------------------------- //
+float EquipmentLoan::LoanRevenue(float LoanFee) {
+    return BorrowerCount * LoanFee;
+}
+
+// ------------------------------------------------------------------- //
+/// END - STUDENT CODE
+// ------------------------------------------------------------------- //</code></pre>
     </div>
 </body>
 </html>
