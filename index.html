@@ -1,1 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ Code Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .code-container {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow-x: auto;
+        }
+        pre {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        h2 {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Workshop Registration C++ Header Template</h2>
+    
+    <div class="code-container">
+        <pre><code>// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! //
+/// - SUBMIT ONLY THIS FILE
+/// - CHANGE THE FILE NAME TO STUDENT NUMBER (e.g. 123456789.h)
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! //
+
+// ------------------------------------------------------------------- //
+/// Student & Evaluation Details - COMPLETE
+// ------------------------------------------------------------------- //
+/// Student Number:
+/// Date:
+/// Campus:
+/// Department:
+/// Venue:
+// ------------------------------------------------------------------- //
+
+// ------------------------------------------------------------------- //
+/// Class Libraries - DO NOT CHANGE
+// ------------------------------------------------------------------- //
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+// ------------------------------------------------------------------- //
+
+// ------------------------------------------------------------------- //
+/// START - STUDENT CODE
+// ------------------------------------------------------------------- //
+
+// ------------------------------------------------------------------- //
+/// 0. WorkshopRegistration Class Definition
+// ------------------------------------------------------------------- //
+class WorkshopRegistration {
+private:
+    string WorkshopTitle;
+    string PresenterName;
+    int MaxParticipants;
+    string* ParticipantList;
+    int ParticipantCount;
+
+public:
+    WorkshopRegistration();
+    ~WorkshopRegistration();
+    void SetDetails(string WT, string PN, int MP);
+    void AddParticipant(string ParticipantName);
+    void DisplayWorkshopDetails();
+    void DisplayParticipantList();
+    float RegistrationRevenue(float RegistrationFee);
+};
+
+// ------------------------------------------------------------------- //
+/// 1. Constructor Function
+// ------------------------------------------------------------------- //
+WorkshopRegistration::WorkshopRegistration() {
+    WorkshopTitle = "";
+    PresenterName = "";
+    MaxParticipants = 0;
+    ParticipantList = nullptr;
+    ParticipantCount = 0;
+}
+
+// ------------------------------------------------------------------- //
+/// 2. Destructor Function
+// ------------------------------------------------------------------- //
+WorkshopRegistration::~WorkshopRegistration() {
+    delete[] ParticipantList;
+}
+
+// ------------------------------------------------------------------- //
+/// 3. Set Details Function
+// ------------------------------------------------------------------- //
+void WorkshopRegistration::SetDetails(string WT, string PN, int MP) {
+    WorkshopTitle = WT;
+    PresenterName = PN;
+    MaxParticipants = MP;
+    ParticipantList = new string[MaxParticipants];
+}
+
+// ------------------------------------------------------------------- //
+/// 4. AddParticipant Function
+// ------------------------------------------------------------------- //
+void WorkshopRegistration::AddParticipant(string ParticipantName) {
+    if (ParticipantCount &lt; MaxParticipants) {
+        ParticipantList[ParticipantCount] = ParticipantName;
+        ParticipantCount++;
+    } else {
+        cout &lt;&lt; "Maximum participants reached: " &lt;&lt; ParticipantName &lt;&lt; " not added." &lt;&lt; endl;
+    }
+}
+
+// ------------------------------------------------------------------- //
+/// 5. DisplayWorkshopDetails Function
+// ------------------------------------------------------------------- //
+void WorkshopRegistration::DisplayWorkshopDetails() {
+    cout &lt;&lt; "Workshop Title: " &lt;&lt; WorkshopTitle &lt;&lt; endl;
+    cout &lt;&lt; "Presenter: " &lt;&lt; PresenterName &lt;&lt; endl;
+    cout &lt;&lt; "Max Participants: " &lt;&lt; MaxParticipants &lt;&lt; endl;
+    cout &lt;&lt; "Current Participants: " &lt;&lt; ParticipantCount &lt;&lt; endl;
+}
+
+// ------------------------------------------------------------------- //
+/// 6. DisplayParticipantList Function
+// ------------------------------------------------------------------- //
+void WorkshopRegistration::DisplayParticipantList() {
+    if (ParticipantCount == 0) {
+        cout &lt;&lt; "No participants registered." &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "Participant List: ";
+        for (int i = 0; i &lt; ParticipantCount; i++) {
+            cout &lt;&lt; ParticipantList[i] &lt;&lt; " ; ";
+        }
+        cout &lt;&lt; endl;
+    }
+}
+
+// ------------------------------------------------------------------- //
+/// 7. RegistrationRevenue Function
+// ------------------------------------------------------------------- //
+float WorkshopRegistration::RegistrationRevenue(float RegistrationFee) {
+    return ParticipantCount * RegistrationFee;
+}
+
+// ------------------------------------------------------------------- //
+/// END - STUDENT CODE
+// ------------------------------------------------------------------- //</code></pre>
+    </div>
+
+</body>
+</html>
 
